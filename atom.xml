@@ -2,7 +2,7 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <id>https://tianbaojie.github.io</id>
     <title>Gridea</title>
-    <updated>2021-01-07T13:40:58.419Z</updated>
+    <updated>2021-01-07T13:43:45.912Z</updated>
     <generator>https://github.com/jpmonette/feed</generator>
     <link rel="alternate" href="https://tianbaojie.github.io"/>
     <link rel="self" href="https://tianbaojie.github.io/atom.xml"/>
@@ -17,6 +17,35 @@
         </link>
         <updated>2021-01-07T13:08:41.000Z</updated>
         <content type="html"><![CDATA[<p>下面我来介绍如何将中文的笔记转化为英文笔记</p>
+]]></content>
+    </entry>
+    <entry>
+        <title type="html"><![CDATA[Benchmark]]></title>
+        <id>https://tianbaojie.github.io/post/Benchmark/</id>
+        <link href="https://tianbaojie.github.io/post/Benchmark/">
+        </link>
+        <updated>2021-01-05T14:05:11.000Z</updated>
+        <content type="html"><![CDATA[<h1 id="benchmark">Benchmark</h1>
+<h2 id="image-retrieval-with-multi-modal-query-on-fashion200k"><a href="https://paperswithcode.com/sota/image-retrieval-with-multi-modal-query-on">Image Retrieval with Multi-Modal Query on Fashion200k</a></h2>
+<p><a href="https://github.com/xthan/fashion-200k">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105131301705.png" alt="image-20210105131301705" loading="lazy"></figure>
+<h2 id="image-retrieval-with-multi-modal-query-on-fashioniq"><a href="https://paperswithcode.com/sota/image-retrieval-with-multi-modal-query-on-1">Image Retrieval with Multi-Modal Query on FashionIQ</a></h2>
+<p><a href="https://arxiv.org/abs/1905.12794">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="2"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105132200936.png" alt="image-20210105132200936" loading="lazy"></figure>
+<h2 id="compositional-learning-of-image-text-query-for-image-retrieval"><a href="https://paperswithcode.com/paper/compositional-learning-of-image-text-query">Compositional Learning of Image-Text Query for Image Retrieval</a></h2>
+<p><a href="http://web.mit.edu/phillipi/Public/states_and_transformations/index.html">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="3"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105133533502.png" alt="image-20210105133533502" loading="lazy"></figure>
+<h2 id="cross-modal-retrieval-on-coco-2014text-to-image"><a href="https://paperswithcode.com/sota/cross-modal-retrieval-on-coco-2014">Cross-Modal Retrieval on COCO 2014(text to image)</a></h2>
+<p><a href="https://www.tensorflow.org/datasets/catalog/coco">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="4"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105134303366.png" alt="image-20210105134303366" loading="lazy"></figure>
+<h2 id="fashion-gen-the-generative-fashion-dataset-and-challenge"><a href="https://arxiv.org/abs/1806.08317">Fashion-Gen: The Generative Fashion Dataset and Challenge</a></h2>
+<p><a href="https://arxiv.org/abs/1806.08317">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="5"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105135357312.png" alt="image-20210105135357312" loading="lazy"></figure>
 ]]></content>
     </entry>
     <entry>

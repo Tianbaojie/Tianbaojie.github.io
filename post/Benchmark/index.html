@@ -8,7 +8,7 @@
 <meta name="keywords" content="Gridea静态个人博客">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="#000">
-<title>将中文markdown原格式转化为英文的markdown | Gridea</title>
+<title>Benchmark | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1610027017597">
 <link rel="stylesheet" href="/media/css/pisces.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,7 +38,7 @@
 
 
 
-  <meta name="description" content="将中文markdown原格式转化为英文的markdown" />
+  <meta name="description" content="Benchmark" />
   <meta name="keywords" content="" />
 </head>
 
@@ -190,7 +190,8 @@
       <div class="sidebar-body pisces" id="sidebar_body">
         
           
-            
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -226,6 +227,199 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li><a href="#benchmark">Benchmark</a>
+<ul>
+<li><a href="#image-retrieval-with-multi-modal-query-on-fashion200k">Image Retrieval with Multi-Modal Query on Fashion200k</a></li>
+<li><a href="#image-retrieval-with-multi-modal-query-on-fashioniq">Image Retrieval with Multi-Modal Query on FashionIQ</a></li>
+<li><a href="#compositional-learning-of-image-text-query-for-image-retrieval">Compositional Learning of Image-Text Query for Image Retrieval</a></li>
+<li><a href="#cross-modal-retrieval-on-coco-2014text-to-image">Cross-Modal Retrieval on COCO 2014(text to image)</a></li>
+<li><a href="#fashion-gen-the-generative-fashion-dataset-and-challenge">Fashion-Gen: The Generative Fashion Dataset and Challenge</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
+</div>
+
+<script>
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
+      }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0] && elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
+    });
+  }
+
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
           
         
       </div>
@@ -313,8 +507,8 @@
           <div class="section bg-color post post-page">
             <section class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://tianbaojie.github.io/post/jiang-zhong-wen-markdown-yuan-ge-shi-zhuan-hua-wei-ying-wen-de-markdown/">
-      将中文markdown原格式转化为英文的markdown
+    <a class="post-title-link" href="https://tianbaojie.github.io/post/Benchmark/">
+      Benchmark
     </a>
   </h1>
   <div class="post-meta">
@@ -322,7 +516,7 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span class="language" data-lan="publish">发布于</span>
-      <span class="publish-time" data-t="2021-01-07 21:08:41">2021-01-07</span>
+      <span class="publish-time" data-t="2021-01-05 22:05:11">2021-01-05</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
@@ -333,13 +527,33 @@
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>21<span class="pc-show language" data-lan="words">字数</span></span>
+      <span>83<span class="pc-show language" data-lan="words">字数</span></span>
     </span>
     
   </div>
 </section>
             <div class="post-body next-md-body" id="post_body">
-              <p>下面我来介绍如何将中文的笔记转化为英文笔记</p>
+              <h1 id="benchmark">Benchmark</h1>
+<h2 id="image-retrieval-with-multi-modal-query-on-fashion200k"><a href="https://paperswithcode.com/sota/image-retrieval-with-multi-modal-query-on">Image Retrieval with Multi-Modal Query on Fashion200k</a></h2>
+<p><a href="https://github.com/xthan/fashion-200k">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="1"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105131301705.png" alt="image-20210105131301705" loading="lazy"></figure>
+<h2 id="image-retrieval-with-multi-modal-query-on-fashioniq"><a href="https://paperswithcode.com/sota/image-retrieval-with-multi-modal-query-on-1">Image Retrieval with Multi-Modal Query on FashionIQ</a></h2>
+<p><a href="https://arxiv.org/abs/1905.12794">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="2"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105132200936.png" alt="image-20210105132200936" loading="lazy"></figure>
+<h2 id="compositional-learning-of-image-text-query-for-image-retrieval"><a href="https://paperswithcode.com/paper/compositional-learning-of-image-text-query">Compositional Learning of Image-Text Query for Image Retrieval</a></h2>
+<p><a href="http://web.mit.edu/phillipi/Public/states_and_transformations/index.html">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="3"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105133533502.png" alt="image-20210105133533502" loading="lazy"></figure>
+<h2 id="cross-modal-retrieval-on-coco-2014text-to-image"><a href="https://paperswithcode.com/sota/cross-modal-retrieval-on-coco-2014">Cross-Modal Retrieval on COCO 2014(text to image)</a></h2>
+<p><a href="https://www.tensorflow.org/datasets/catalog/coco">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="4"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105134303366.png" alt="image-20210105134303366" loading="lazy"></figure>
+<h2 id="fashion-gen-the-generative-fashion-dataset-and-challenge"><a href="https://arxiv.org/abs/1806.08317">Fashion-Gen: The Generative Fashion Dataset and Challenge</a></h2>
+<p><a href="https://arxiv.org/abs/1806.08317">dataset introduction and download</a></p>
+<p>State-of-the-Art</p>
+<figure data-type="image" tabindex="5"><img src="C:%5CUsers%5C19532%5CAppData%5CRoaming%5CTypora%5Ctypora-user-images%5Cimage-20210105135357312.png" alt="image-20210105135357312" loading="lazy"></figure>
 
             </div>
             
@@ -352,7 +566,7 @@
     </li>
     <li class="post-copyright-link">
       <strong class="language" data-lan="link">本文链接：</strong>
-      <a href="https://tianbaojie.github.io/post/jiang-zhong-wen-markdown-yuan-ge-shi-zhuan-hua-wei-ying-wen-de-markdown/" title="将中文markdown原格式转化为英文的markdown">https://tianbaojie.github.io/post/jiang-zhong-wen-markdown-yuan-ge-shi-zhuan-hua-wei-ying-wen-de-markdown/</a>
+      <a href="https://tianbaojie.github.io/post/Benchmark/" title="Benchmark">https://tianbaojie.github.io/post/Benchmark/</a>
     </li>
     <li class="post-copyright-license">
       <strong class="language" data-lan="copyright">版权声明： </strong>
@@ -365,11 +579,15 @@
   <div class="nav">
     <div class="nav-prev">
       
+        <i class="fa fa-chevron-left"></i>
+        <a class="nav-pc-next" title="将中文markdown原格式转化为英文的markdown" href="https://tianbaojie.github.io/post/jiang-zhong-wen-markdown-yuan-ge-shi-zhuan-hua-wei-ying-wen-de-markdown/">将中文markdown原格式转化为英文的markdown</a class="nav-pc-next">
+        <a class="nav-mobile-prev" title="将中文markdown原格式转化为英文的markdown" href="https://tianbaojie.github.io/post/jiang-zhong-wen-markdown-yuan-ge-shi-zhuan-hua-wei-ying-wen-de-markdown/">上一篇</a>
+      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="Benchmark" href="https://tianbaojie.github.io/post/Benchmark/">Benchmark</a>
-        <a class="nav-mobile-next" title="Benchmark" href="https://tianbaojie.github.io/post/Benchmark/">下一篇</a>
+        <a class="nav-pc-next" title="哈哈哈哈" href="https://tianbaojie.github.io/post/FCM/">哈哈哈哈</a>
+        <a class="nav-mobile-next" title="哈哈哈哈" href="https://tianbaojie.github.io/post/FCM/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
