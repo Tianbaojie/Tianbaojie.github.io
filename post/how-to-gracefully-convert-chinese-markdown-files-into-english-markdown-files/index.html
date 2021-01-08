@@ -8,7 +8,7 @@
 <meta name="keywords" content="个人博客">
 <meta name="description" content="">
 <meta name="theme-color" content="#000">
-<title>炼金术士</title>
+<title>How to gracefully convert Chinese markdown files into English markdown files | 炼金术士</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1610113009550">
 <link rel="stylesheet" href="/media/css/pisces.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,7 +38,8 @@
 
 
 
-  <meta name="description" content="">
+  <meta name="description" content="How to gracefully convert Chinese markdown files into English markdown files" />
+  <meta name="keywords" content="" />
 </head>
 
 <body>
@@ -87,7 +88,7 @@
             
               
             
-            <li class="nav-item nav-item-active">
+            <li class="nav-item ">
               
               
                 <a href="/archives/" target="_self">
@@ -171,10 +172,26 @@
   <div class="main-continer">
     
     <div
-      class="section-layout  pisces">
+      class="section-layout pisces ">
       <div class="section-layout-wrapper">
-        <div id="sidebarMeta" class="sidebar">
-    
+        
+
+<div class="sidebar">
+  
+    <div class="sidebar-box box-shadow-wrapper bg-color right-motion" id="sidebar">
+      
+        <div class="post-list-sidebar">
+          <div class="sidebar-title">
+            <span id="tocSideBar" class="sidebar-title-item sidebar-title-active language" data-lan="index">文章目录</span>
+            <span id="metaSideBar" class="sidebar-title-item language" data-lan="preview">站点概览</span>
+          </div>
+        </div>
+      
+      <div class="sidebar-body pisces" id="sidebar_body">
+        
+          
+            <div class="post-side-meta" id="post_side_meta">
+              
 <div class="sidebar-wrapper box-shadow-wrapper bg-color">
   <div class="sidebar-item">
     <img class="site-author-image right-motion" src="/images/avatar.png"/>
@@ -210,97 +227,628 @@
 
 
 </div>
+            </div>
+            <div class="post-toc sidebar-body-active" id="post_toc" style="opacity: 1;">
+              <div class="toc-box right-motion">
+  <div class="toc-wrapper auto-number auto"
+    id="toc_wrapper">
+    <ul class="markdownIt-TOC">
+<li>
+<ul>
+<li><a href="#1-register-as-baidu-translation-developer">1. Register as Baidu Translation Developer</a></li>
+<li><a href="#2-translate-chinese-into-english-using-baidu-translation-api">2. Translate Chinese into English using Baidu Translation API</a></li>
+<li><a href="#3-convert-chinese-markdown-toutf-8code">3. Convert Chinese markdown to<code>utf-8</code>Code</a></li>
+<li><a href="#4-parse-markdown-file-to-translate-chinese-into-english">4. Parse markdown file to translate Chinese into English</a></li>
+<li><a href="#5-all-codes">5. All Codes</a></li>
+</ul>
+</li>
+</ul>
+
+  </div>
 </div>
+
 <script>
-  let sidebarMeta = document.querySelector('#sidebarMeta');
-  let scheme = 'pisces';
-  let sidebarWrapper = document.querySelector('.sidebar-wrapper');
-  if (sidebarMeta && (scheme === 'pisces' || scheme === 'gemini')) {
-    document.addEventListener('scroll', function(e) {
-      if (document.scrollingElement.scrollTop > parseInt(sidebarMeta.style.marginTop) + 10) {
-        sidebarWrapper.classList.add('home-sidebar-fixed')
-      } else {
-        sidebarWrapper.classList.remove('home-sidebar-fixed')
+
+  let lastTop = 0, lList = [], hList = [], postBody, lastIndex = -1;
+  let active = 'active-show', activeClass = 'active-current';
+  let tocWrapper = document.querySelector('#toc_wrapper');
+  let tocContent = tocWrapper.children[0];
+  let autoNumber = tocWrapper && tocWrapper.classList.contains('auto-number');
+
+  function addTocNumber(elem, deep) {
+    if (!elem) {
+      return;
+    }
+    let prop = elem.__proto__;
+
+    if (prop === HTMLUListElement.prototype) {
+      for (let i = 0; i < elem.children.length; i++) {
+        addTocNumber(elem.children[i], deep + (i + 1) + '.');
       }
+    } else if (prop === HTMLLIElement.prototype) {
+      // 保存li元素
+      if (elem.children[0] && elem.children[0].__proto__ === HTMLAnchorElement.prototype) {
+        lList.push(elem);
+      }
+      for (let i = 0; i < elem.children.length; i++) {
+        let cur = elem.children[i];
+        if (cur.__proto__ === HTMLAnchorElement.prototype) {
+          if (autoNumber) {
+            cur.text = deep + ' ' + cur.text;
+          }
+        } else if (cur.__proto__ === HTMLUListElement.prototype) {
+          addTocNumber(cur, deep);
+        }
+      }
+    }
+  }
+
+  function removeParentActiveClass() {
+    let parents = tocContent.querySelectorAll('.' + active)
+    parents.forEach(function (elem) {
+      elem.classList.remove(active);
     });
   }
-  </script>
-        <div class="section-box box-shadow-wrapper">
-          <section class="section archives-section bg-color posts-expand">
-            
 
-<div class="bg-color">
-  <div class="archive-timeline-box">
-    <div class="archive-timeline-title">
-      
-        <h2 class="language" data-lan="archives" data-count="3">非常好！目前共计3篇日志，继续努力！</h2>
-      
-    </div>
-    
-      
-      
-        <div class="node-title">
-          <h2 class="tag-year">2021</h2>
-        </div>    
+  function addActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.add(activeClass);
+    }
+  }
+
+  function removeActiveClass(index) {
+    if (index >= 0 && index < hList.length) {
+      lList[index].classList.remove(activeClass);
+    }
+  }
+
+  function addActiveLiElemment(elem, parent) {
+    if (!elem || elem === parent) {
+      return;
+    } else {
+      if (elem.__proto__ === HTMLLIElement.prototype) {
+        elem.classList.add(active);
+      }
+      addActiveLiElemment(elem.parentElement, parent);
+    }
+  }
+
+  function showToc() {
+    if (tocWrapper) {
+      postBody = document.querySelector('#post_body');
+      for (let i = 0; i < postBody.children.length; i++) {
+        if (postBody.children[i].__proto__ === HTMLHeadingElement.prototype) {
+          hList.push(postBody.children[i]);
+        }
+      }
+      if (tocWrapper.classList.contains('compress')) {
+        tocContent.classList.add('closed');
+      } else if (tocWrapper.classList.contains('no_compress')) {
+        tocContent.classList.add('expanded');
+      } else {
+        if (hList.length > 10) {
+          active = 'active-hidden'
+          tocContent.classList.add('closed');
+        } else {
+          tocContent.classList.add('expanded');
+        }
+      }
+    }
+  }
+
+  (function () {
+    // 处理不是从#一级标题开始目录
+    if (tocContent.children.length === 1 && tocContent.children[0].__proto__ === HTMLLIElement.prototype) {
+      let con = tocContent.children[0].children[0];
+      tocContent.innerHTML = con.innerHTML;
+    }
+    let markdownItTOC = document.querySelector('.markdownIt-TOC');
+    let innerHeight = window.innerHeight;
+    markdownItTOC.style = `max-height: ${innerHeight - 80 > 0 ? innerHeight - 80 : innerHeight}px`
+    addTocNumber(tocContent, '');
+  })();
+
+  document.addEventListener('scroll', function (e) {
+    if (lList.length <= 0) {
+      return;
+    }
+    let scrollTop = document.scrollingElement.scrollTop + 10;
+    let dir;
+
+    if (lastTop - scrollTop > 0) {
+      dir = 'up';
+    } else {
+      dir = 'down';
+    }
+
+    lastTop = scrollTop;
+    if (scrollTop <= 0) {
+      if (lastIndex >= 0 && lastIndex < hList.length) {
+        lList[lastIndex].classList.remove(activeClass);
+      }
+      return;
+    }
+
+    let current = 0, hasFind = false;
+    for (let i = 0; i < hList.length; i++) {
+      if (hList[i].offsetTop > scrollTop) {
+        current = i;
+        hasFind = true;
+        break;
+      }
+    }
+    if (!hasFind && scrollTop > lList[lList.length - 1].offsetTop) {
+      current = hList.length - 1;
+    } else {
+      current--;
+    }
+    if (dir === 'down') {
+      if (current > lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex)
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    } else {
+      if (current < lastIndex) {
+        addActiveClass(current);
+        removeActiveClass(lastIndex);
+        lastIndex = current;
+        removeParentActiveClass();
+        lList[current] && addActiveLiElemment(lList[current].parentElement, tocContent);
+      }
+    }
+  });
+
+
+  window.addEventListener('load', function () {
+    showToc();
+    document.querySelector('#sidebar').style = 'display: block;';
+    tocWrapper.classList.add('toc-active');
+    setTimeout(function () {
+      if ("createEvent" in document) {
+        let evt = document.createEvent("HTMLEvents");
+        evt.initEvent("scroll", false, true);
+        document.dispatchEvent(evt);
+      }
+      else {
+        document.fireEvent("scroll");
+      }
+    }, 500)
+  })
+
+</script>
+            </div>
+          
         
-      
-      <a href="https://tianbaojie.github.io/post/how-to-gracefully-convert-chinese-markdown-files-into-english-markdown-files/">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-08
-              <small>How to gracefully convert Chinese markdown files into English markdown files</small>
-            </h1>
-          </div>  
       </div>
-      </a>
+    </div>
+  
+</div>
+<script>
+  const SIDEBAR_TITLE_ACTIVE = 'sidebar-title-active';
+  const SIDEBAR_BODY_ACTIVE = 'sidebar-body-active';
+  const SLIDE_UP_IN = 'slide-up-in';
+
+  let sidebar = document.querySelector('#sidebar'),
+  tocSideBar = document.querySelector('#tocSideBar'),
+  metaSideBar = document.querySelector('#metaSideBar'),
+  postToc = document.querySelector('#post_toc'),
+  postSiteMeta = document.querySelector('#post_side_meta'),
+  sidebarTitle = document.querySelector('.sidebar-title'),
+  sidebarBody = document.querySelector('#sidebar_body');
+
+  tocSideBar && tocSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  metaSideBar && metaSideBar.addEventListener('click', (e) => {
+    toggleSidebar(e);
+  });
+
+  function toggleSidebar(e) {
+    let currentTitle = document.querySelector("."+SIDEBAR_TITLE_ACTIVE);
+    if (currentTitle == e.srcElement) {
+      return ;
+    }
+    let current, showElement, hideElement;
+    if (e.srcElement == metaSideBar) {
+      showElement = postSiteMeta;
+      hideElement = postToc;
+    } else if (e.srcElement == tocSideBar){
+      showElement = postToc;
+      hideElement = postSiteMeta;
+    }
+    currentTitle.classList.remove(SIDEBAR_TITLE_ACTIVE);
+    e.srcElement.classList.add(SIDEBAR_TITLE_ACTIVE);
+
+    window.Velocity(hideElement, 'stop');
+    window.Velocity(hideElement, 'transition.slideUpOut', {
+      display: 'none',
+      duration: 200,
+      complete: function () {
+        window.Velocity(showElement, 'transition.slideDownIn', {
+          duration: 200
+        });
+      }
+    })
+    hideElement.classList.remove(SIDEBAR_BODY_ACTIVE);
+    showElement.classList.add(SIDEBAR_BODY_ACTIVE);
+  }
+
+  postToc && postToc.addEventListener('transitionend', function() {
+    this.classList.remove(SLIDE_UP_IN);
+  });
+
+  if (sidebarBody) {
+    if (sidebarBody.classList.contains('pisces') || sidebarBody.classList.contains('gemini')) {
+      let hasFix = false;
+      let scrollEl = document.querySelector('.main-continer');
+      let limitTop = document.querySelector('#nav_ul').children.length * 42 + 162;
+      window.addEventListener('scroll', function(e) {
+        if (document.scrollingElement.scrollTop >= limitTop) {
+          if (!hasFix) {
+            sidebar.classList.add('sidebar-fixed');
+            hasFix = true;
+          }
+        } else {
+          if (hasFix) {
+            sidebar.classList.remove('sidebar-fixed');
+            hasFix = false;
+          }
+        }
+      });
+    }
+  }
+  
+</script>
+        <div class="section-box box-shadow-wrapper">
+          <div class="section bg-color post post-page">
+            <section class="post-header">
+  <h1 class="post-title">
+    <a class="post-title-link" href="https://tianbaojie.github.io/post/how-to-gracefully-convert-chinese-markdown-files-into-english-markdown-files/">
+      How to gracefully convert Chinese markdown files into English markdown files
+    </a>
+  </h1>
+  <div class="post-meta">
     
-      
-      
-      <a href="https://tianbaojie.github.io/post/ru-he-you-ya-de-jiang-zhong-wen-markdown-wen-jian-zhuan-huan-wei-ying-wen-markdown-wen-jian/">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-08
-              <small>如何优雅的将中文markdown文件转换为英文markdown文件</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item pc-show">
+      <i class="fa fa-calendar-o"></i>
+      <span class="language" data-lan="publish">发布于</span>
+      <span class="publish-time" data-t="2021-01-08 21:35:25">2021-01-08</span>
+      <span class="post-meta-divider pc-show">|</span>
+    </span>
     
-      
-      
-      <a href="https://tianbaojie.github.io/post/Benchmark/">
-        <div class="motion-warpper tag-archive-node">
-          <div class="tag-node">
-            <h1>
-              01-05
-              <small>Benchmark</small>
-            </h1>
-          </div>  
-      </div>
-      </a>
+    <span class="meta-item">
+      <i class="fa fa-clock-o"></i>
+      <span>8<span class="language" data-lan="minute">分钟</span></span>
+    </span>
+    <span class="meta-item">
+      <span class="post-meta-divider">|</span>
+      <i class="fa fa-file-word-o"></i>
+      <span>1374<span class="pc-show language" data-lan="words">字数</span></span>
+    </span>
     
   </div>
-  
-<div class="page bg-color">
-  <ul class="pagination-ul">
-    
-    
-      
-        <li class="pagination-li pagination-active">
-            <a href="/archives/page/../">
-              1
-            </a>
-        </li>
-      
-    
-    
-  </ul>
-</div>
-</div>
+</section>
+            <div class="post-body next-md-body" id="post_body">
+              <pre><code>This paper is mainly about converting the original format of a markdown file written in Chinese to a markdown file written in English (or translation between two other languages) to solve the language gap.
+</code></pre>
+<h2 id="1-register-as-baidu-translation-developer">1. Register as Baidu Translation Developer</h2>
+<p>There are many translation websites, like Google Translation, Baidu Translation,<a href="https://www.deepl.com/translator">DeepL</a>.DeepL as a rising star performs very well, the author uses DeepL to translate word documents can solve the problem of scrambling very well.The author strongly recommends using DeepL to translate documents instead of Google to translate them.But for the author who wants to translate Chinese into English, Baidu, as the largest search engine in Chinese, obviously has the largest Chinese corpus and performs better in the task of translating Chinese into English.</p>
+<img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108202120406.png" alt="image-20210108202120406" style="zoom:50%;" />
+<p>Click to enter<a href="http://api.fanyi.baidu.com/">Baidu Translate</a>Registered as a developer, Baidu's vertical translation is obviously the best choice because the author is engaged in the science and technology industry.</p>
+<img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108202920713.png" alt="image-20210108202920713" style="zoom:50%;" />
+<figure data-type="image" tabindex="1"><img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108203238713.png" alt="image-20210108203238713" loading="lazy"></figure>
+<p>After successful registration, click on the upper right corner to select the developer information.</p>
+<img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108203047605.png" alt="image-20210108203047605" style="zoom:50%;" />
+<p>We'll see our ID and key, which we'll use later</p>
+<figure data-type="image" tabindex="2"><img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108203353568.png" alt="image-20210108203353568" loading="lazy"></figure>
+<h2 id="2-translate-chinese-into-english-using-baidu-translation-api">2. Translate Chinese into English using Baidu Translation API</h2>
+<p>In addition to translating Chinese into English, we can also translate other languages with reference to their official<a href="http://api.fanyi.baidu.com/doc/21">File</a>.</p>
+<img src="https://raw.githubusercontent.com/Tianbaojie/myBlogImage/master/image-20210108203732994.png" alt="image-20210108203732994" style="zoom:80%;" />
+<p>function<code>translet2english(q)</code>,<code>q</code>Is a Chinese string to be translated, no more than 2000 characters, no line breaks, using<code>utf-8</code>Encoding, function returns reacted English string</p>
+<pre><code class="language-python">#百度垂直领域翻译API,不包含词典、tts语音合成等资源，如有相关需求请联系translate_api@baidu.com
+# 2020.07.28 更新，原url拼接错误，感谢热心网友指正
+# coding=utf-8
+#http://api.fanyi.baidu.com/doc/22
+import http.client
+import hashlib
+import urllib
+import random
+import json
+import re
+def translet2english(q):
+    # 你的APP ID，请修改成您的
+    appid = '2021010700066xxxx'
+    # 你的密钥,请修改成您的
+    secretKey = 'My7cCx368vqBmauExxxx'
+    # 百度翻译 API 的 HTTP 接口
+    myurl = 'http://api.fanyi.baidu.com/api/trans/vip/fieldtranslate'
+    httpClient = None
 
-          </section>
+
+    fromLang = 'auto'   #原文语种
+    toLang = 'en'   #译文语种
+    salt = random.randint(32768, 65536)
+
+    domain = 'electronics'
+    sign = appid + q + str(salt) + domain + secretKey
+    sign = hashlib.md5(sign.encode()).hexdigest()
+    myurl = myurl + '?appid=' + appid + '&amp;q=' + urllib.parse.quote(q) + '&amp;from=' + fromLang + '&amp;to=' + toLang + '&amp;salt=' + str(salt) + '&amp;domain=' + domain + '&amp;sign=' + sign
+
+    try:
+        httpClient = http.client.HTTPConnection('api.fanyi.baidu.com')
+        httpClient.request('GET', myurl)
+
+        # response是HTTPResponse对象
+        response = httpClient.getresponse()
+        result_all = response.read().decode(&quot;utf-8&quot;)
+        result = json.loads(result_all)
+
+        #print (result)
+        return result['trans_result'][0]['dst']
+
+    except Exception as e:
+        print ('error')
+    finally:
+        if httpClient:
+            httpClient.close()
+</code></pre>
+<h2 id="3-convert-chinese-markdown-toutf-8code">3. Convert Chinese markdown to<code>utf-8</code>Code</h2>
+<p><code>changeFileType(filename_in,filename_out='C:\\Users\\19532\\Desktop\\testout.md')</code>: will<code>filename_in</code>Convert to<code>utf-8</code>Coded<code>filename_out</code>, back<code>filename_out</code></p>
+<p><code>filename_in</code>: Files to be converted</p>
+<p><code>filename_out</code>: converted file</p>
+<pre><code class="language-python"># _*_ coding: utf-8 _*_
+import pandas as pd
+import chardet
+import codecs
+def checkFileType(filename):
+    try:
+        with open(filename, 'rb') as f:
+            data = f.read()
+            encoding_type = chardet.detect(data)
+            return encoding_type['encoding']
+    except Exception as e:
+        return 'utf-8'
+def changeFileType(filename_in,filename_out='C:\\Users\\19532\\Desktop\\testout.md'): 
+    # 输入文件的编码类型
+    encode_in = checkFileType(filename_in)
+    # 输出文件的编码类型
+    encode_out = 'utf-8'
+    with codecs.open(filename=filename_in, mode='rb', encoding=encode_in, errors='ignore') as fi:
+        data = fi.read()
+        with open(filename_out, mode='w', encoding=encode_out) as fo:
+            fo.write(data)
+            fo.close()
+    return filename_out
+</code></pre>
+<h2 id="4-parse-markdown-file-to-translate-chinese-into-english">4. Parse markdown file to translate Chinese into English</h2>
+<p><code>findPos(contends)</code>: Find<code>contends</code>Untranslatable markdown tags in strings and untranslatable code, formulas, and so on.</p>
+<p>Markdown tags are referenced from<a href="https://www.baidu.com/link?url=wB-lvVgNO8rtuaF2jccRqv9u4ioPZD-RMSr_dxLdLgK9rXmtGfGHeHGI_IkUmbouNkq1SKnarsbuuKNAcSBYz_&amp;wd=&amp;eqid=fa9cf6c9000e73ab000000035ff85583">Rookie Bird Tutorial</a></p>
+<pre><code class="language-python"># 获取文件的内容
+def get_contends(path):
+    with open(path,'r',encoding='utf-8', errors='ignore') as file_object:
+        contends = file_object.read()
+    return contends
+# 找到markdown标记符
+def findPos(contends):
+    pattern = re.compile(r'(-+--|#+ |\$[^\$]+\$|\$\$[^\$]+\$\$|\[|\]|\([^\)]+\)|_+|\*+ |\++ |&gt;+ |`[^`]+`|```[^`]+```|\|+|\n+|---[^-]+---|&lt;[^&gt;]*&gt;)',re.DOTALL)
+    pos=[]
+    def double(matched):
+        pos.append(matched.span())
+    re.sub(pattern, double,contends)
+    return pos
+</code></pre>
+<p><code>trans2english(contends,pos)</code>: except in the string<code>findPos(contends)</code>A string found outside the location of an untranslatable string is translated into English</p>
+<pre><code class="language-python">def trans2english(contends,pos):
+    l=0
+    r=0
+    i=0
+    eng=''
+    while r&lt;len(contends) and i&lt;len(pos):
+        a=pos[i][0]
+        b=pos[i][1]
+        if l&lt;a:
+            r=a
+            if contends[l:r]!=' ':
+                eng+=translet2english(contends[l:r])
+            else:
+                eng+=contends[l:r]
+            l=r
+        else:
+            l=b
+            r=b
+            eng+=contends[a:b]
+            i=i+1
+    if r&lt;len(contends):
+        if contends[r:len(contends)]!=' ':
+            eng+=translet2english(contends[r:len(contends)])
+        else:
+             eng+=contends[r:len(contends)]
+    return eng
+</code></pre>
+<p><code>readAndTranslate(fileIn,filename_out)</code>: will<code>fileIn</code>Translate to<code>filename_out</code></p>
+<pre><code class="language-python">def readAndTranslate(fileIn='C:\\Users\\19532\\Desktop\\Myblog\\posts\\about.md',filename_out='C:\\Users\\19532\\Desktop\\testenglish.md'):
+    filename=changeFileType(fileIn)
+    contends=get_contends(filename)
+    pos=findPos(contends)
+    ans=trans2english(contends,pos)
+    with open(filename_out, mode='w', encoding= 'utf-8') as fo:
+            fo.write(ans)
+            fo.close()
+    return ans
+</code></pre>
+<h2 id="5-all-codes">5. All Codes</h2>
+<pre><code class="language-python">import pandas as pd
+import chardet
+import codecs
+import http.client
+import hashlib
+import urllib
+import random
+import json
+import re
+def translet2english(q):
+    # 你的APP ID
+    appid = '2021010700066xx'
+    # 你的密钥
+    secretKey = 'My7cCx368vqBmauE1Bxxxx'
+    # 百度翻译 API 的 HTTP 接口
+    myurl = 'http://api.fanyi.baidu.com/api/trans/vip/fieldtranslate'
+    httpClient = None
+
+
+    fromLang = 'auto'   #原文语种
+    toLang = 'en'   #译文语种
+    salt = random.randint(32768, 65536)
+
+    domain = 'electronics'
+    sign = appid + q + str(salt) + domain + secretKey
+    sign = hashlib.md5(sign.encode()).hexdigest()
+    myurl = myurl + '?appid=' + appid + '&amp;q=' + urllib.parse.quote(q) + '&amp;from=' + fromLang + '&amp;to=' + toLang + '&amp;salt=' + str(salt) + '&amp;domain=' + domain + '&amp;sign=' + sign
+
+    try:
+        httpClient = http.client.HTTPConnection('api.fanyi.baidu.com')
+        httpClient.request('GET', myurl)
+
+        # response是HTTPResponse对象
+        response = httpClient.getresponse()
+        result_all = response.read().decode(&quot;utf-8&quot;)
+        result = json.loads(result_all)
+
+        #print (result)
+        return result['trans_result'][0]['dst']
+
+    except Exception as e:
+        print ('error')
+    finally:
+        if httpClient:
+            httpClient.close()
+
+
+def checkFileType(filename):
+    try:
+        with open(filename, 'rb') as f:
+            data = f.read()
+            encoding_type = chardet.detect(data)
+            return encoding_type['encoding']
+    except Exception as e:
+        return 'utf-8'
+def changeFileType(filename_in,filename_out='C:\\Users\\19532\\Desktop\\testout.md'): 
+    # 输入文件的编码类型
+    encode_in = checkFileType(filename_in)
+    # 输出文件的编码类型
+    encode_out = 'utf-8'
+    with codecs.open(filename=filename_in, mode='rb', encoding=encode_in, errors='ignore') as fi:
+        data = fi.read()
+        with open(filename_out, mode='w', encoding=encode_out) as fo:
+            fo.write(data)
+            fo.close()
+    return filename_out
+ # 获取文件的内容
+def get_contends(path):
+    with open(path,'r',encoding='utf-8', errors='ignore') as file_object:
+        contends = file_object.read()
+    return contends
+
+def findPos(contends):
+    pattern = re.compile(r'(-+--|#+ |\$[^\$]+\$|\$\$[^\$]+\$\$|\[|\]|\([^\)]+\)|_+|\*+ |\++ |&gt;+ |`[^`]+`|```[^`]+```|\|+|\n+|---[^-]+---|&lt;[^&gt;]*&gt;)',re.DOTALL)
+    pos=[]
+    def double(matched):
+        pos.append(matched.span())
+    re.sub(pattern, double,contends)
+    return pos
+
+
+
+def trans2english(contends,pos):
+    l=0
+    r=0
+    i=0
+    eng=''
+    while r&lt;len(contends) and i&lt;len(pos):
+        a=pos[i][0]
+        b=pos[i][1]
+        if l&lt;a:
+            r=a
+            if contends[l:r]!=' ':
+                eng+=translet2english(contends[l:r])
+            else:
+                eng+=contends[l:r]
+            l=r
+        else:
+            l=b
+            r=b
+            eng+=contends[a:b]
+            i=i+1
+    if r&lt;len(contends):
+        if contends[r:len(contends)]!=' ':
+            eng+=translet2english(contends[r:len(contends)])
+        else:
+             eng+=contends[r:len(contends)]
+    return eng
+
+
+def readAndTranslate(fileIn='C:\\Users\\19532\\Desktop\\Myblog\\typora\\如何优雅的将中文markdown文件转换为英文markdown文件.md',filename_out='C:\\Users\\19532\\Desktop\\Myblog\\typora\\如何优雅的将中文markdown文件转换为英文markdown文件eng.md'):
+    filename=changeFileType(fileIn)
+    contends=get_contends(filename)
+    pos=findPos(contends)
+    ans=trans2english(contends,pos)
+    with open(filename_out, mode='w', encoding= 'utf-8') as fo:
+            fo.write(ans)
+            fo.close()
+
+if __name__ == '__main__':
+    fileIn='C:\\Users\\19532\\Desktop\\Myblog\\typora\\如何优雅的将中文markdown文件转换为英文markdown文件.md'
+    filename_out=fileIn[:-3]+'eng.md'
+    readAndTranslate(fileIn,filename_out)
+</code></pre>
+
+            </div>
+            
+              <div class="reward-btn">
+                <div class="reward-btn-text">赞赏</div>
+              </div>
+            
+            
+              <div class="post-footer">
+  <ul class="post-copyright">
+    <li class="post-copyright-author">
+      <strong class="language" data-lan="author">本文作者：</strong>
+      田宝杰
+    </li>
+    <li class="post-copyright-link">
+      <strong class="language" data-lan="link">本文链接：</strong>
+      <a href="https://tianbaojie.github.io/post/how-to-gracefully-convert-chinese-markdown-files-into-english-markdown-files/" title="How to gracefully convert Chinese markdown files into English markdown files">https://tianbaojie.github.io/post/how-to-gracefully-convert-chinese-markdown-files-into-english-markdown-files/</a>
+    </li>
+    <li class="post-copyright-license">
+      <strong class="language" data-lan="copyright">版权声明： </strong>
+      本博客所有文章除特别声明外，均采用<a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i> BY-NC-SA</a> 许可协议。转载请注明出处！
+    </li>
+  </ul>
+  <div class="tags">
+    
+  </div>
+  <div class="nav">
+    <div class="nav-prev">
+      
+    </div>
+    <div class="nav-next">
+      
+        <a class="nav-pc-next" title="如何优雅的将中文markdown文件转换为英文markdown文件" href="https://tianbaojie.github.io/post/ru-he-you-ya-de-jiang-zhong-wen-markdown-wen-jian-zhuan-huan-wei-ying-wen-markdown-wen-jian/">如何优雅的将中文markdown文件转换为英文markdown文件</a>
+        <a class="nav-mobile-next" title="如何优雅的将中文markdown文件转换为英文markdown文件" href="https://tianbaojie.github.io/post/ru-he-you-ya-de-jiang-zhong-wen-markdown-wen-jian-zhuan-huan-wei-ying-wen-markdown-wen-jian/">下一篇</a>
+        <i class="fa fa-chevron-right"></i>
+      
+    </div>
+  </div>
+</div>
+            
+            
+  
+
+          </div>
         </div>
       </div>
     </div>
@@ -507,6 +1055,235 @@
     parent.insertBefore(aelem, next);
   })
 </script>
+    <div class="reward-mask" style="display: none;">
+  <div class="reward-relative">
+    <span class="close" aria-hidden="true">x</span>
+    <div class="reward-body">
+      <h2>感谢您的支持，我会继续努力的!</h2>
+      <div class="reward-img-box">
+        <div style="position: relative; width: 140px; height: 140px;">
+          
+          
+            <img id="zfb" class="reward-img" src="\media\images\custom-zfbImg.jpg" alt="赞赏码">
+          
+          
+            <img id="wx" class="reward-img" src="\media\images\custom-wxImg.jpg" alt="赞赏码">
+          
+        </div>
+      </div>
+      <p class="reward-word">扫码打赏，你说多少就多少</p>
+      <p class="reward-tip">打开微信扫一扫，即可进行扫码打赏哦</p>
+    </div>
+    <div class="bottom">
+      
+      <div id="zfbBtn" class="pay-text">
+        支付宝
+      </div>
+      
+      
+      <div id="wxBtn" class="pay-text">
+        微信支付
+      </div>
+      
+    </div>
+  </div>
+</div>
+<style>
+  .reward-mask {
+    position: fixed;
+    z-index: 99999;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #00000054;
+  }
+
+  .reward-relative {
+    position: relative;
+    width: 480px;
+    text-align: center;
+    margin: 0 auto;
+    border-radius: 5px;
+    background-color: #fff;
+    top: 50%;
+    margin-top: -205px;
+  }
+
+  .reward-relative .close {
+    position: absolute;
+    right: 10px;
+    font-weight: normal;
+    font-size: 16px;
+    color: #929292;
+  }
+
+  .reward-body {
+    padding: 40px 20px 20px;
+  }
+
+  .bottom {
+    display: flex;
+  }
+
+  .reward-btn {
+    text-align: center;
+  }
+
+  .reward-btn-text {
+    display: inline-block;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    line-height: 60px;
+    border-radius: 50%;
+    background-color: #ff9734;
+    color: #FFF;
+    margin-top: 20px;
+  }
+
+  .pay-text {
+    margin-top: 10px;
+    padding: 10px;
+    flex: 1;
+    transition: all .2s linear;
+  }
+
+  .pay-text:hover {
+    background-color: #a5a5a536;
+  }
+
+  .reward-body h2 {
+    padding-top: 10px;
+    text-align: center;
+    color: #a3a3a3;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 0 0 20px;
+  }
+
+  .reward-body h2:after,
+  .reward-body h2:before {
+    font-family: Arial, Helvetica, sans-serif;
+    background: 0 0;
+    width: 0;
+    height: 0;
+    font-style: normal;
+    color: #eee;
+    font-size: 80px;
+    position: absolute;
+    top: 20px;
+  }
+
+  .reward-body h2:before {
+    content: '\201c';
+    left: 50px;
+  }
+
+  .reward-body h2:after {
+    content: '\201d';
+    right: 80px;
+  }
+
+  .reward-img-box {
+    display: inline-block;
+    padding: 10px;
+    border: 6px solid #ea5f00;
+    margin: 0 auto;
+    border-radius: 3px;
+    position: relative;
+  }
+
+  .reward-img {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (max-width: 767px) {
+    .reward-relative {
+      height: 100%;
+      top: 0px;
+      margin-top: 0;
+      width: auto;
+    }
+
+    .reward-relative .bottom {
+      flex-direction: column;
+    }
+
+    .reward-relative .pay-text {
+      width: 80%;
+      margin: 5px auto;
+      border: 1px solid silver;
+      padding: 6px;
+      border-radius: 4px;
+    }
+
+    .reward-body h2:after {
+      right: 40px;
+    }
+
+    .reward-body h2:after,
+    .reward-body h2:before {
+      font-size: 60px;
+    }
+
+    .reward-body h2:before {
+      left: 20px;
+    }
+  }
+</style>
+<script>
+  !function () {
+    var mask = document.querySelector('.reward-mask');
+    let close = document.querySelector('.reward-relative .close');
+    let rewardBtn = document.querySelector('.reward-btn');
+
+    let zfb = document.querySelector('#zfb'),
+      wx = document.querySelector('#wx'),
+      zfbBtn = document.querySelector('#zfbBtn'),
+      wxBtn = document.querySelector('#wxBtn');
+
+    if (zfbBtn && wxBtn) {
+      zfbBtn.addEventListener('click', () => {
+        window.Velocity(zfb, 'transition.slideLeftIn', {
+          duration: 400
+        });
+        window.Velocity(wx, 'transition.slideRightOut', {
+          display: 'none',
+          duration: 400
+        });
+      });
+
+      wxBtn.addEventListener('click', () => {
+        window.Velocity(wx, 'transition.slideRightIn', {
+          duration: 400
+        });
+        window.Velocity(zfb, 'transition.slideLeftOut', {
+          display: 'none',
+          duration: 400
+        });
+      });
+    }
+
+    rewardBtn.addEventListener('click', (e) => {
+      window.Velocity(mask, 'transition.slideDownIn', {
+        duration: 400
+      })
+    });
+
+    close.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.Velocity(mask, 'transition.slideUpOut', {
+        duration: 400
+      })
+    })
+  }()
+</script>
+
   </div>
 </body>
 
@@ -1407,7 +2184,6 @@ if __name__ == &#39;__main__&#39;:
     speed: 200
   });
 </script>
-
 
 
 
